@@ -123,41 +123,43 @@ def ask_zeus(prompt, system_prompt=None):
 
 def get_weather(city):
     try:
-        # Get coordinates
-        geo_url = f"https://geocoding-api.open-meteo.com/v1/search?name={city}&count=1"
-        geo_response = requests.get(geo_url).json()
+        geo_url = f"https://geocoding-api.open-meteo.com/v1/search?name={city}&count=1&language=en&format=json"
+        geo_response = requests.get(geo_url, timeout=10).json()
         if not geo_response.get('results'):
-            return f"City '{city}' not found!"
+            return f"City '{city}' not found! Try another name."
 
         lat = geo_response['results'][0]['latitude']
         lon = geo_response['results'][0]['longitude']
         city_name = geo_response['results'][0]['name']
         country = geo_response['results'][0].get('country', '')
 
-        # Get weather
-        weather_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m,relative_humidity_2m,windspeed_10m,weathercode,precipitation&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto&forecast_days=3"
-        weather = requests.get(weather_url).json()
-
+        weather_url = (
+            f"https://api.open-meteo.com/v1/forecast?"
+            f"latitude={lat}&longitude={lon}"
+            f"&current=temperature_2m,relative_humidity_2m,"
+            f"windspeed_10m,weathercode,precipitation"
+            f"&daily=temperature_2m_max,temperature_2m_min,precipitation_sum"
+            f"&timezone=auto&forecast_days=3"
+        )
+        weather = requests.get(weather_url, timeout=10).json()
         current = weather['current']
-        temp = current['temperature_2m']
-        humidity = current['relative_humidity_2m']
-        wind = current['windspeed_10m']
-        code = current['weathercode']
 
         conditions = {
             0: "☀️ Clear Sky", 1: "🌤️ Mainly Clear",
             2: "⛅ Partly Cloudy", 3: "☁️ Overcast",
+            45: "🌫️ Foggy", 48: "🌫️ Foggy",
             51: "🌦️ Light Drizzle", 61: "🌧️ Rain",
             71: "❄️ Snow", 80: "🌦️ Showers",
             95: "⛈️ Thunderstorm"
         }
+        code = current.get('weathercode', 0)
         condition = conditions.get(code, "🌤️ Clear")
 
         return {
             'city': f"{city_name}, {country}",
-            'temp': temp,
-            'humidity': humidity,
-            'wind': wind,
+            'temp': current['temperature_2m'],
+            'humidity': current['relative_humidity_2m'],
+            'wind': current['windspeed_10m'],
             'condition': condition,
             'forecast': weather['daily']
         }
@@ -270,7 +272,14 @@ if page == "⚡ Dashboard":
     with col4:
         st.metric("✅ Todos", len(st.session_state.todos))
 
-    st.divider()
+    # Auto refresh every second for live clock
+    st.components.v1.html("""
+    <script>
+    setTimeout(function() {
+        window.parent.location.reload();
+    }, 60000);  // refresh every 60 seconds
+    </script>
+    """, height=0)
 
     # Quick weather
     col1, col2 = st.columns(2)
