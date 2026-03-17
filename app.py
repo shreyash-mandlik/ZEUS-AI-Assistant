@@ -261,12 +261,15 @@ if page == "⚡ Dashboard":
     """, unsafe_allow_html=True)
 
     # Quick stats
-    now = datetime.now()
+    from datetime import timezone, timedelta
+    IST = timezone(timedelta(hours=5, minutes=30))
+    now = datetime.now(IST)
+
     col1, col2, col3, col4 = st.columns(4)
     with col1:
         st.metric("📅 Date", now.strftime("%d %b %Y"))
     with col2:
-        st.metric("⏰ Time", now.strftime("%H:%M:%S"))
+        st.metric("⏰ Time", now.strftime("%I:%M %p"))
     with col3:
         st.metric("📝 Notes", len(st.session_state.notes))
     with col4:
