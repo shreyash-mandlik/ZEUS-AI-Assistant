@@ -16,9 +16,12 @@ load_dotenv()
 # ================================
 # API Keys — replace with yours!
 # ================================
-GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
-NEWS_API_KEY = os.getenv("NEWS_API_KEY", "")
-
+try:
+    GROQ_API_KEY = st.secrets["GROQ_API_KEY"]
+    NEWS_API_KEY = st.secrets["NEWS_API_KEY"]
+except:
+    GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+    NEWS_API_KEY = os.getenv("NEWS_API_KEY", "")
 
 # ================================
 # Page Config
