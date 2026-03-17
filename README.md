@@ -4,7 +4,7 @@ AI-powered personal assistant with voice, weather,
 news, stocks, notes, tools and fun features!
 
 ## 🌐 Live Demo
-👉 [Try ZEUS here!](your-streamlit-url)
+👉 [Try ZEUS here!](https://zeus-ai-assistant-ga3bteyj5loaq4k2xduryv.streamlit.app/)
 
 ## ⚡ Features
 - 🤖 AI Chat (Llama 3.3 70B via Groq)
